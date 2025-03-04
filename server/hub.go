@@ -1,13 +1,20 @@
 package main
 
+import "encoding/json"
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
+type ClientMsg struct {
+	clientptr *Client
+	msg       []byte
+}
+
 type Hub struct {
 	// Registered clients.
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
-	broadcast chan []byte
+	clientMsgs chan ClientMsg
 
 	// Register requests from the clients.
 	register chan *Client
@@ -18,7 +25,7 @@ type Hub struct {
 
 func newHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		clientMsgs: make(chan ClientMsg),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -36,15 +43,14 @@ func (h *Hub) run() {
 				close(client.send)
 			}
 
-		case message := <-h.broadcast:
-			for client := range h.clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
-				}
-			}
+		case message := <-h.clientMsgs:
+			handleClientMsg(message)
 		}
 	}
+}
+
+func handleClientMsg(message ClientMsg) {
+	jsonMap := make(map[string]interface{})
+
+	json.Unmarshal(message.msg, jsonMap)
 }
