@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -38,6 +37,8 @@ var upgrader = websocket.Upgrader{
 type Client struct {
 	hub *Hub
 
+	subhub *SubHub
+
 	// The websocket connection.
 	conn *websocket.Conn
 
@@ -60,8 +61,6 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
-		// TODO: Remove this print
-		fmt.Printf("%s\n", message)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -69,7 +68,11 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.clientMsgs <- ClientMsg{clientptr: c, msg: message}
+		if c.subhub != nil {
+			c.subhub.clientMsgs <- ClientMsg{clientptr: c, msg: message}
+		} else {
+			c.hub.clientMsgs <- ClientMsg{clientptr: c, msg: message}
+		}
 	}
 }
 

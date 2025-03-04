@@ -15,10 +15,10 @@ type ClientMsg struct {
 
 type Hub struct {
 	// Registered clients.
-	clients map[*Client]bool
+	unallocatedClients map[*Client]bool
 
-	// Subhubs
-	subhubs map[*SubHub]bool
+	// Subhubs, clients map to subhubs because each subhub has one client at a time for now
+	subhubs map[*Client]*SubHub
 
 	// Inbound messages from the clients.
 	clientMsgs chan ClientMsg
@@ -32,11 +32,11 @@ type Hub struct {
 
 func newHub() *Hub {
 	return &Hub{
-		clientMsgs: make(chan ClientMsg),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
-		subhubs:    make(map[*SubHub]bool),
+		clientMsgs:         make(chan ClientMsg),
+		register:           make(chan *Client),
+		unregister:         make(chan *Client),
+		unallocatedClients: make(map[*Client]bool),
+		subhubs:            make(map[*Client]*SubHub),
 	}
 }
 
@@ -44,20 +44,20 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-			h.clients[client] = true
+			h.unallocatedClients[client] = true
 		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
+			if _, ok := h.unallocatedClients[client]; ok {
+				delete(h.unallocatedClients, client)
 				close(client.send)
 			}
 
 		case message := <-h.clientMsgs:
-			handleClientMsg(message)
+			handleClientMsg(h, message)
 		}
 	}
 }
 
-func handleClientMsg(message ClientMsg) {
+func handleClientMsg(h *Hub, message ClientMsg) {
 	jsonMap := make(map[string]interface{})
 
 	json.Unmarshal(message.msg, &jsonMap)
@@ -72,6 +72,18 @@ func handleClientMsg(message ClientMsg) {
 		} else {
 			log.Printf("%s message: %#v\n", "malformed input", jsonMap)
 		}
+	case "request_subhub":
+		_, ok := h.subhubs[message.clientptr]
+		if ok {
+			log.Printf("%s\n", "subhubs map already contains clientptr")
+		} else {
+			newSubHubPtr := newSubHub(message.clientptr)
+			h.subhubs[message.clientptr] = newSubHubPtr
+			message.clientptr.subhub = newSubHubPtr
+			fmt.Printf("%s\n", "subhub request recieved")
+			go newSubHubPtr.run()
+		}
+
 	default:
 		log.Printf("%s message: %#v\n", "unregonised message handleClientMsg", jsonMap)
 	}

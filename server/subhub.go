@@ -1,6 +1,10 @@
 package main
 
-import ()
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+)
 
 type ClientConnection struct {
 	clientptr *Client
@@ -18,22 +22,38 @@ type SubHub struct {
 
 	// client2 *Client
 
-	unregister chan *Client
+	clientMsgs chan ClientMsg
 
-	gameptr *Game
+	// gameptr *Game
 }
 
 func newSubHub(client1 *Client) *SubHub {
 	return &SubHub{
-		unregister: make(chan *Client),
 		client1:    client1,
+		clientMsgs: make(chan ClientMsg),
 		// client2:    client2,
 	}
 }
 
 func (sh *SubHub) run() {
+	type msgConfirmSubhub struct {
+		Title string `json:"title"`
+	}
+	u, err := json.Marshal(msgConfirmSubhub{Title: "subhub_allocated"})
+	if err != nil {
+		log.Printf("confirm subhub json marshal error")
+	} else {
+		sh.client1.send <- u
+	}
+
 	for {
-		select {}
+		select {
+		case message := <-sh.clientMsgs:
+			shHandleClientMsg(message)
+		}
 	}
 }
 
+func shHandleClientMsg(message ClientMsg) {
+	fmt.Printf("subhub message: %s\n", message.msg)
+}
