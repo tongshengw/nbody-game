@@ -1,6 +1,10 @@
 package main
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+)
 
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
@@ -52,5 +56,15 @@ func (h *Hub) run() {
 func handleClientMsg(message ClientMsg) {
 	jsonMap := make(map[string]interface{})
 
-	json.Unmarshal(message.msg, jsonMap)
+	json.Unmarshal(message.msg, &jsonMap)
+	switch jsonMap["title"] {
+	case "echo":
+		if jsonMap["content"] != nil {
+			fmt.Printf("%s\n", jsonMap["content"])
+		} else {
+			log.Printf("%s message: %#v\n", "malformed input", jsonMap)
+		}
+	default:
+		log.Printf("%s message: %#v\n", "unregonised message handleClientMsg", jsonMap)
+	}
 }
