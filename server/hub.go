@@ -13,15 +13,12 @@ type ClientMsg struct {
 	msg       []byte
 }
 
-type ClientConnection struct {
-	clientptr *Client
-
-	privateChan chan []byte
-}
-
 type Hub struct {
 	// Registered clients.
 	clients map[*Client]bool
+
+	// Subhubs
+	subhubs map[*SubHub]bool
 
 	// Inbound messages from the clients.
 	clientMsgs chan ClientMsg
@@ -39,6 +36,7 @@ func newHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		subhubs:    make(map[*SubHub]bool),
 	}
 }
 
