@@ -13,6 +13,12 @@ type ClientMsg struct {
 	msg       []byte
 }
 
+type ClientConnection struct {
+	clientptr *Client
+
+	privateChan chan []byte
+}
+
 type Hub struct {
 	// Registered clients.
 	clients map[*Client]bool
@@ -59,8 +65,12 @@ func handleClientMsg(message ClientMsg) {
 	json.Unmarshal(message.msg, &jsonMap)
 	switch jsonMap["title"] {
 	case "echo":
-		if jsonMap["content"] != nil {
-			fmt.Printf("%s\n", jsonMap["content"])
+		s, ok := jsonMap["content"].(string)
+		if jsonMap["content"] != nil && ok {
+			fmt.Printf("%s\n", s)
+			select {
+			case message.clientptr.send <- []byte(s):
+			}
 		} else {
 			log.Printf("%s message: %#v\n", "malformed input", jsonMap)
 		}
