@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 )
 
@@ -17,14 +17,15 @@ func main() {
      \/    \/            \/\/
 	`
 
-	fmt.Printf("%s\nStarting nbody-server...\n", nbody_ascii)
+	fmt.Printf("%s\nnbody-server\n", nbody_ascii)
 
 	var addr = flag.String("addr", ":8080", "http service address")
-
 	flag.Parse()
+	fmt.Printf("Serving on: %s\n", *addr)
+
 	hub := newHub()
 	go hub.run()
-	http.HandleFunc("/", serveHome)
+	http.HandleFunc("/", serveHomePage)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
@@ -34,15 +35,6 @@ func main() {
 	}
 }
 
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	http.ServeFile(w, r, "home.html")
+func serveHomePage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "serverHome.html")
 }
