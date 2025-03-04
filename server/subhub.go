@@ -24,13 +24,14 @@ type SubHub struct {
 
 	clientMsgs chan ClientMsg
 
-	// gameptr *Game
+	gameptr *Game
 }
 
 func newSubHub(client1 *Client) *SubHub {
 	return &SubHub{
 		client1:    client1,
 		clientMsgs: make(chan ClientMsg),
+		gameptr:    newGame(),
 		// client2:    client2,
 	}
 }
@@ -39,11 +40,11 @@ func (sh *SubHub) run() {
 	type msgConfirmSubhub struct {
 		Title string `json:"title"`
 	}
-	u, err := json.Marshal(msgConfirmSubhub{Title: "subhub_allocated"})
+	msg, err := json.Marshal(msgConfirmSubhub{Title: "subhub_allocated"})
 	if err != nil {
 		log.Printf("confirm subhub json marshal error")
 	} else {
-		sh.client1.send <- u
+		sh.client1.send <- msg
 	}
 
 	for {
