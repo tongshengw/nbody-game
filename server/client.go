@@ -52,6 +52,7 @@ type Client struct {
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
 func (c *Client) readPump() {
+	// TODO: add something to unregister from subhubs and games
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
