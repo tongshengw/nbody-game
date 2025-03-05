@@ -6,12 +6,6 @@ import (
 	"log"
 )
 
-type ClientConnection struct {
-	clientptr *Client
-
-	privateChan chan []byte
-}
-
 // Needs to be capable of:
 // - recieving input from two clients
 // - sending private output to each client
