@@ -50,11 +50,17 @@ func (sh *SubHub) run() {
 	for {
 		select {
 		case message := <-sh.clientMsgs:
-			shHandleClientMsg(message)
+			shHandleClientMsg(sh, &message)
 		}
 	}
 }
 
-func shHandleClientMsg(message ClientMsg) {
+func shHandleClientMsg(sh *SubHub, message *ClientMsg) {
 	fmt.Printf("subhub message: %s\n", message.msg)
+	jsonMap := message.marshalToMap()
+	switch jsonMap["title"] {
+	case "game_ready":
+		sh.gameptr = newGame()
+		go sh.gameptr.run()
+	}
 }

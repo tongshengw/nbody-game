@@ -57,10 +57,21 @@ func (h *Hub) run() {
 	}
 }
 
-func handleClientMsg(h *Hub, message ClientMsg) {
+func (message *ClientMsg) marshalToMap() map[string]interface{} {
 	jsonMap := make(map[string]interface{})
+	err := json.Unmarshal(message.msg, &jsonMap)
+	if err != nil {
+		log.Printf("marshalToMap error\n")
+	}
+	_, ok := jsonMap["title"]
+	if !ok {
+		log.Printf("title malformed\n")
+	}
+	return jsonMap
+}
 
-	json.Unmarshal(message.msg, &jsonMap)
+func handleClientMsg(h *Hub, message ClientMsg) {
+	jsonMap := message.marshalToMap()
 	switch jsonMap["title"] {
 	case "echo":
 		s, ok := jsonMap["content"].(string)
