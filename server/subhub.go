@@ -31,7 +31,7 @@ func newSubHub(client1 *Client) *SubHub {
 	return &SubHub{
 		client1:    client1,
 		clientMsgs: make(chan ClientMsg),
-		gameptr:    newGame(),
+		gameptr:    nil,
 		// client2:    client2,
 	}
 }
@@ -60,7 +60,7 @@ func shHandleClientMsg(sh *SubHub, message *ClientMsg) {
 	jsonMap := message.marshalToMap()
 	switch jsonMap["title"] {
 	case "game_ready":
-		sh.gameptr = newGame()
+		sh.gameptr = newGame(sh)
 		go sh.gameptr.run()
 	}
 }

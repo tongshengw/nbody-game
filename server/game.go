@@ -25,10 +25,11 @@ type GameState struct {
 	player1 Player
 }
 
-func newGame() *Game {
+func newGame(sh *SubHub) *Game {
 	return &Game{
 		inputs: make(chan GameInput),
 		state:  GameState{player1: Player{position: mgl32.Vec3{0, 0, 0}}},
+		subhub: sh,
 	}
 }
 
