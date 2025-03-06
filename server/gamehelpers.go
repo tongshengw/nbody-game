@@ -6,6 +6,7 @@ import (
 )
 
 type gameStateSerialised struct {
+	Title   string `json:"title"`
 	Player1 string `json:"player1"`
 }
 
@@ -25,7 +26,7 @@ func (p *Player) toserial() []byte {
 }
 
 func (gs *GameState) toserial() []byte {
-	gsSerial := gameStateSerialised{Player1: string(gs.player1.toserial())}
+	gsSerial := gameStateSerialised{Title: "gamestate", Player1: string(gs.player1.toserial())}
 	val, err := json.Marshal(gsSerial)
 	if err != nil {
 		log.Printf("gamestate toserial() json marshal error")

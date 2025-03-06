@@ -61,7 +61,7 @@ func (message *ClientMsg) marshalToMap() map[string]interface{} {
 	jsonMap := make(map[string]interface{})
 	err := json.Unmarshal(message.msg, &jsonMap)
 	if err != nil {
-		log.Printf("marshalToMap error\n")
+		log.Printf("marshalToMap error: %s\n", message.msg)
 	}
 	_, ok := jsonMap["title"]
 	if !ok {
