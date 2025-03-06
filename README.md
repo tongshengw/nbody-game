@@ -12,4 +12,4 @@ Subhubs are a game server, managing websocket messages from its allocated client
 - Start implementing gameplay elements
 
 #### Future goals:
-- Pixel art shader for procedually generated planets
+- Pixel art shader for procedually generated asteroids
