@@ -6,7 +6,6 @@ var counter := 0
 var subhub_allocated := false
 var game_started := false
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	WebsocketClient.connected_to_server.connect(connectHandler)
@@ -42,6 +41,7 @@ func receivedJsonHandler(input: Dictionary) -> void:
 			if error == OK:
 				if typeof(json.data) == TYPE_DICTIONARY:
 					print(json.data)
+					SignalBus.player1_gamestate_update.emit(json.data)
 
 func connectHandler() -> void:
 	connected = true
