@@ -13,13 +13,10 @@ signal connection_closed()
 signal message_received(message: Variant)
 
 func connect_to_url(url: String) -> int:
-	print("one")
 	socket.supported_protocols = supported_protocols
 	socket.handshake_headers = handshake_headers
 
-	print("two")
 	var err := socket.connect_to_url(url, tls_options)
-	print("three")
 	if err != OK:
 		return err
 
