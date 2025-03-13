@@ -5,6 +5,9 @@ A client manages one websocket connection and provides readers and writers in go
 The hub manages all incoming connections and allocates clients to subhubs.
 Subhubs are a game server, managing websocket messages from its allocated clients and passes them to the game.
 
+### Backend connection flow
+![backend flow diagram](https://github.com/tongshengw/nbody-game/blob/main/imgs/nbody_backend_diagram.svg)
+
 #### TODO: 
 - Fix issue where disconnecting doesn't correctly deallocate client and stop game. Close channel when game stops.
 - Pass input from godot to game
