@@ -17,7 +17,7 @@ type playerSerialised struct {
 }
 
 func (p *Player) toserial() []byte {
-	pSerial := playerSerialised{Xpos: p.position.X(), Ypos: p.position.Y(), Zpos: p.position.Z()}
+	pSerial := playerSerialised{Xpos: p.p.X(), Ypos: p.p.Y(), Zpos: p.p.Z()}
 	val, err := json.Marshal(pSerial)
 	if err != nil {
 		log.Printf("player toserial() json marshal error")

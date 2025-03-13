@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -67,7 +66,6 @@ func (sh *SubHub) run() {
 }
 
 func shHandleClientMsg(sh *SubHub, message *ClientMsg) {
-	fmt.Printf("subhub message: %s\n", message.msg)
 	var titleStruct TitleOnly
 	json.Unmarshal(message.msg, &titleStruct)
 	switch titleStruct.Title {
@@ -76,10 +74,14 @@ func shHandleClientMsg(sh *SubHub, message *ClientMsg) {
 		go sh.gameptr.run()
 	case "player_input_data":
 		if sh.gameptr != nil {
-			var playerIn GameInput
-			json.Unmarshal(message.msg, &playerIn)
-			playerIn.Player = 1
-			sh.gameptr.inputs <- playerIn
+			var playerIn PlayerInputMsg
+			err := json.Unmarshal(message.msg, &playerIn)
+			if err != nil {
+				log.Printf("player_input_data handle json unmarshal error\n")
+				return
+			}
+			playerIn.Data.Player = 1
+			sh.gameptr.input1 <- playerIn.Data
 		}
 	}
 }
