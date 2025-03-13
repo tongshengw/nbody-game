@@ -54,7 +54,13 @@ type Client struct {
 func (c *Client) readPump() {
 	// TODO: add something to unregister from subhubs and games
 	defer func() {
-		c.hub.unregister <- c
+		if c.subhub != nil {
+			c.subhub.unregister <- c
+		} else if c.hub != nil {
+			c.hub.unregister <- c
+		} else {
+			log.Printf("client unregister error\n")
+		}
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)

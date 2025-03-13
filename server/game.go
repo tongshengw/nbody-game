@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -18,7 +17,11 @@ type Player struct {
 }
 
 type GameInput struct {
-	player int
+	Player    int
+	W_pressed bool `json:"w_pressed"`
+	A_pressed bool `json:"a_pressed"`
+	S_pressed bool `json:"s_pressed"`
+	D_pressed bool `json:"d_pressed"`
 }
 
 type GameState struct {
@@ -42,10 +45,14 @@ func (g *Game) run() {
 	var pos float32 = 0.01
 	for {
 		<-ticker.C
-		log.Printf("%s", g.state.toserial())
+		// log.Printf("%s", g.state.toserial())
 		g.subhub.client1.send <- g.state.toserial()
 		g.state.player1.position[0] += pos
 		g.state.player1.position[1] += pos * 2
 		g.state.player1.position[2] += pos * 3
+		// process input
+		// update velocities
+		// calculate positions
+		// output
 	}
 }
