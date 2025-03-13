@@ -12,13 +12,35 @@ func _ready() -> void:
 	WebsocketClient.connection_closed.connect(disconnectHandler)
 	WebsocketClient.message_received.connect(msgHandler)
 
-	WebsocketClient.connect_to_url("ws://127.0.0.1:9999/ws")
+	WebsocketClient.connect_to_url("ws://localhost:9999/ws")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if connected:
-		pass
+	var player_inputs = {
+		"w_pressed": false,
+		"s_pressed": false,
+		"a_pressed": false,
+		"d_pressed": false,
+	}
+	var input_changed = false
+
+	if Input.is_action_pressed("move_forward"):
+		player_inputs["w_pressed"] = true
+		input_changed = true
+	if Input.is_action_pressed("move_backward"):
+		player_inputs["s_pressed"] = true
+		input_changed = true
+	if Input.is_action_pressed("move_left"):
+		player_inputs["a_pressed"] = true
+		input_changed = true
+	if Input.is_action_pressed("move_right"):
+		player_inputs["d_pressed"] = true
+		input_changed = true
+	
+	if input_changed && game_started:
+		var json_out = {"title": "player_input_data", "data":player_inputs}
+		WebsocketClient.send(JSON.stringify(json_out))
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept"):
@@ -45,7 +67,6 @@ func receivedJsonHandler(input: Dictionary) -> void:
 
 func connectHandler() -> void:
 	connected = true
-	WebsocketClient.send("connected")
 	print("connected")
 func disconnectHandler() -> void:
 	print("disconnected")
