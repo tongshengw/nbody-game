@@ -67,7 +67,7 @@ func (g *Game) run() {
 
 		// output
 		g.subhub.client1.send <- g.state.toserial()
-		log.Printf("%.2f, %.2f\n", g.state.player1.p.X(), g.state.player1.p.Z())
+		// log.Printf("%.2f, %.2f\n", g.state.player1.p.X(), g.state.player1.p.Z())
 
 	}
 }
@@ -84,13 +84,13 @@ func (g *Game) processInput() {
 					velocityChange = velocityChange.Add(mgl32.Vec3{1, 0, 0})
 				}
 				if pin.S_pressed {
-					velocityChange = velocityChange.Add(mgl32.Vec3{0, 0, -1})
+					velocityChange = velocityChange.Add(mgl32.Vec3{0, 0, 1})
 				}
 				if pin.A_pressed {
 					velocityChange = velocityChange.Add(mgl32.Vec3{-1, 0, 0})
 				}
 				if pin.W_pressed {
-					velocityChange = velocityChange.Add(mgl32.Vec3{0, 0, 1})
+					velocityChange = velocityChange.Add(mgl32.Vec3{0, 0, -1})
 				}
 				g.state.player1.v = g.state.player1.v.Add(velocityChange)
 			}
